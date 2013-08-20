@@ -17,6 +17,9 @@
 # limitations under the License.
 #
 
+default['postgresql']['enable_pgdg_apt'] = true
+default['postgresql']['enable_pgdg_yum'] = false
+
 case node['platform']
 when "debian"
 
@@ -26,7 +29,7 @@ when "debian"
   when node['platform_version'].to_f < 7.0 # All 6.X
     default['postgresql']['version'] = "8.4"
   else
-    default['postgresql']['version'] = "9.1"
+    default['postgresql']['version'] = "9.2"
   end
 
   default['postgresql']['dir'] = "/etc/postgresql/#{node['postgresql']['version']}/main"
@@ -49,7 +52,7 @@ when "ubuntu"
   when node['platform_version'].to_f <= 11.04
     default['postgresql']['version'] = "8.4"
   else
-    default['postgresql']['version'] = "9.1"
+    default['postgresql']['version'] = "9.2"
   end
 
   default['postgresql']['dir'] = "/etc/postgresql/#{node['postgresql']['version']}/main"
@@ -60,9 +63,15 @@ when "ubuntu"
     default['postgresql']['server']['service_name'] = "postgresql"
   end
 
-  default['postgresql']['client']['packages'] = %w{postgresql-client libpq-dev}
-  default['postgresql']['server']['packages'] = %w{postgresql}
-  default['postgresql']['contrib']['packages'] = %w{postgresql-contrib}
+  if node['postgresql']['enable_pgdg_apt']
+    default['postgresql']['client']['packages'] = %w{postgresql-client libpq-dev}
+    default['postgresql']['server']['packages'] = %w{postgresql}
+    default['postgresql']['contrib']['packages'] = %w{postgresql-contrib}
+  else
+    default['postgresql']['client']['packages'] = ["postgresql-client-#{node['postgresql']['version']}", "postgresql-server-dev-#{node['postgresql']['version']}", "libpq-dev"]
+    default['postgresql']['server']['packages'] = ["postgresql-#{node['postgresql']['version']}"]
+    default['postgresql']['contrib']['packages'] = ["postgresql-contrib-#{node['postgresql']['version']}"]
+  end
 
 when "fedora"
 
@@ -181,14 +190,10 @@ default['postgresql']['pg_hba'] = [
 
 default['postgresql']['password'] = Hash.new
 
-default['postgresql']['enable_pgdg_apt'] = false
-
 case node['platform_family']
 when 'debian'
   default['postgresql']['pgdg']['release_apt_codename'] = node['lsb']['codename']
 end
-
-default['postgresql']['enable_pgdg_yum'] = false
 
 # The PostgreSQL RPM Building Project built repository RPMs for easy
 # access to the PGDG yum repositories. Links to RPMs for installation
