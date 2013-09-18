@@ -63,15 +63,9 @@ when "ubuntu"
     default['postgresql']['server']['service_name'] = "postgresql"
   end
 
-  if node['postgresql']['enable_pgdg_apt']
-    default['postgresql']['client']['packages'] = %w{postgresql-client libpq-dev}
-    default['postgresql']['server']['packages'] = %w{postgresql}
-    default['postgresql']['contrib']['packages'] = %w{postgresql-contrib}
-  else
-    default['postgresql']['client']['packages'] = ["postgresql-client-#{node['postgresql']['version']}", "postgresql-server-dev-#{node['postgresql']['version']}", "libpq-dev"]
-    default['postgresql']['server']['packages'] = ["postgresql-#{node['postgresql']['version']}"]
-    default['postgresql']['contrib']['packages'] = ["postgresql-contrib-#{node['postgresql']['version']}"]
-  end
+  default['postgresql']['client']['packages'] = ["postgresql-client-#{node['postgresql']['version']}", "postgresql-server-dev-#{node['postgresql']['version']}", "libpq-dev"]
+  default['postgresql']['server']['packages'] = ["postgresql-#{node['postgresql']['version']}"]
+  default['postgresql']['contrib']['packages'] = ["postgresql-contrib-#{node['postgresql']['version']}"]
 
 when "fedora"
 
